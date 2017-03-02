@@ -4,6 +4,7 @@
 #include <limits.h>
 #include <sys/time.h>
 #include <string.h>
+#include <omp.h>
 
 double pi = 3.14159265359;
 
@@ -13,11 +14,17 @@ double montecarlo(long long int N)
     long long int M = 0;
     double x,y;
 
-    for (i = 0; i < N; i++) {
-        x = (double) rand() / RAND_MAX;
-        y = (double) rand() / RAND_MAX;
-        if ( x * x + y * y < 1)
-            M++;
+    #pragma omp parallel default(none) \
+    private(i,x,y) shared(N) reduction(+:M)
+    {
+        unsigned int myseed = omp_get_thread_num();
+        #pragma omp for
+        for (i = 0; i < N; i++) {
+            x = (double) rand_r(&myseed) / RAND_MAX;
+            y = (double) rand_r(&myseed) / RAND_MAX;
+            if ( x * x + y * y < 1)
+                M++;
+        }
     }
     return (double) M / N * 4;
 }
