@@ -7,6 +7,9 @@ EXECUTABLE = \
 
 GIT_HOOKS := .git/hooks/pre-commit
 
+all: montecarlo.o
+	$(CC) $(CFLAGS) montecarlo.o -o montecarlo
+
 $(GIT_HOOKS):
 	@scripts/install-git-hooks
 	@echo
@@ -37,5 +40,14 @@ gencsv: default
 		./benchmark_clock_gettime $$i; \
 	done > result_clock_gettime.csv	
 
+montecarlo:
+	$(CC) -o montecarlo montecarlo.c 
+	
+output.txt: montecarlo
+	./montecarlo plot > output.txt
+
+plot: output.txt
+	gnuplot scripts/runtime.gp
+	
 clean:
-	rm -f $(EXECUTABLE) *.o *.s result_clock_gettime.csv
+	rm -f $(EXECUTABLE) montecarlo *.o *.s result_clock_gettime.csv output.txt runtime.png

@@ -3,6 +3,7 @@
 #include <time.h>
 #include <limits.h>
 #include <sys/time.h>
+#include <string.h>
 
 double pi = 3.14159265359;
 
@@ -83,7 +84,7 @@ void compute_by_gettimeofday(long long int N)
     printf("%lf (s)\n\n", duration);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     long long int N;
     struct timespec start;
@@ -99,8 +100,13 @@ int main()
         error = (temp_pi < pi) ? (pi - temp_pi) : (temp_pi - pi);
         duration = (finish.tv_sec - start.tv_sec)
                    + (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
-        printf("N = %lld\n%lf (s)\n", N, duration);
-        printf("pi    = %lf\nerror = %lf\n\n", temp_pi, error);
+        if (argc > 1 && !strcmp(argv[1], "plot")) {
+            printf("%lld %lf ", N, duration);
+            printf("%lf %lf\n", temp_pi, error);
+        } else {
+            printf("N = %lld\n%lf (s)\n", N, duration);
+            printf("pi    = %lf\nerror = %lf\n\n", temp_pi, error);
+        }
     }
     return 0;
 }
