@@ -85,11 +85,22 @@ void compute_by_gettimeofday(long long int N)
 
 int main()
 {
-    long long int N = 100000000;
-    printf("N = %lld\n\n", N);
-    compute_by_clock(N);
-    compute_by_clockgettime(N);
-    compute_by_time(N);
-    compute_by_gettimeofday(N);
+    long long int N;
+    struct timespec start;
+    struct timespec finish;
+    double temp_pi;
+    double error;
+    double duration;
+
+    for (N = 1; N < 10000000000; N*=10) {
+        clock_gettime(CLOCK_MONOTONIC, &start);
+        temp_pi = montecarlo(N);
+        clock_gettime(CLOCK_MONOTONIC, &finish);
+        error = (temp_pi < pi) ? (pi - temp_pi) : (temp_pi - pi);
+        duration = (finish.tv_sec - start.tv_sec)
+                   + (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+        printf("N = %lld\n%lf (s)\n", N, duration);
+        printf("pi    = %lf\nerror = %lf\n\n", temp_pi, error);
+    }
     return 0;
 }
