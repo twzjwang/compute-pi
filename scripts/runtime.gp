@@ -4,6 +4,8 @@ set grid
 set logscale y
 set term png enhanced font 'Verdana,10'
 set output 'runtime.png'
+set xtics rotate by 45 right
+set xlabel "N"
 
 plot [:][:]'output.txt' using 2:xtic(1) with lines title 'time', \
 '' using ($10-0.06):($2+0.001):2 with labels title ' ', \
