@@ -2,13 +2,10 @@ CC = gcc
 CFLAGS = -O0 -std=gnu99 -Wall -fopenmp -mavx
 EXECUTABLE = \
 	time_test_baseline time_test_openmp_2 time_test_openmp_4 \
-	time_test_avx time_test_avxunroll \
+	time_test_avx time_test_avxunroll time_test_montecarlo \
 	benchmark_clock_gettime
 
 GIT_HOOKS := .git/hooks/pre-commit
-
-all: montecarlo.o
-	$(CC) $(CFLAGS) montecarlo.o -o montecarlo
 
 $(GIT_HOOKS):
 	@scripts/install-git-hooks
@@ -19,7 +16,8 @@ default: $(GIT_HOOKS) computepi.o
 	$(CC) $(CFLAGS) computepi.o time_test.c -DOPENMP_2 -o time_test_openmp_2
 	$(CC) $(CFLAGS) computepi.o time_test.c -DOPENMP_4 -o time_test_openmp_4
 	$(CC) $(CFLAGS) computepi.o time_test.c -DAVX -o time_test_avx
-	$(CC) $(CFLAGS) computepi.o time_test.c -DAVXUNROLL -o time_test_avxunroll
+	$(CC) $(CFLAGS) computepi.o time_test.c -DAVXUNROLL -o time_test_avxunroll	
+	$(CC) $(CFLAGS) computepi.o time_test.c -DMONTECARLO -o time_test_montecarlo
 	$(CC) $(CFLAGS) computepi.o benchmark_clock_gettime.c -o benchmark_clock_gettime
 
 .PHONY: clean default
@@ -33,20 +31,15 @@ check: default
 	time ./time_test_openmp_4
 	time ./time_test_avx
 	time ./time_test_avxunroll
+	time ./time_test_montecarlo
 
 gencsv: default
-	for i in `seq 100 5000 25000`; do \
+	for i in `seq 1000 1000 100000`; do \
 		printf "%d," $$i;\
 		./benchmark_clock_gettime $$i; \
 	done > result_clock_gettime.csv	
-
-montecarlo:
-	$(CC) -o montecarlo montecarlo.c 
 	
-output.txt: montecarlo
-	./montecarlo plot > output.txt
-
-plot: output.txt
+plot: gencsv
 	gnuplot scripts/runtime.gp
 	
 clean:

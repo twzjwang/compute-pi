@@ -117,3 +117,24 @@ double compute_pi_avx_unroll(size_t N)
           tmp4[0] + tmp4[1] + tmp4[2] + tmp4[3];
     return pi * 4.0;
 }
+
+double compute_pi_montecarlo(long long int N)
+{
+    long long int i;
+    long long int M = 0;
+    double x,y;
+
+    #pragma omp parallel default(none) \
+    private(i,x,y) shared(N) reduction(+:M)
+    {
+        unsigned int myseed = omp_get_thread_num();
+        #pragma omp for
+        for (i = 0; i < N; i++) {
+            x = (double) rand_r(&myseed) / RAND_MAX;
+            y = (double) rand_r(&myseed) / RAND_MAX;
+            if ( x * x + y * y < 1)
+                M++;
+        }
+    }
+    return (double) M / N * 4;
+}

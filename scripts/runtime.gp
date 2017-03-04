@@ -1,13 +1,14 @@
 reset
 set style fill solid
 set grid
-set logscale y
 set term png enhanced font 'Verdana,10'
 set output 'runtime.png'
-set xtics rotate by 45 right
+set datafile separator ','
 set xlabel "N"
 
-plot [:][:]'output.txt' using 2:xtic(1) with lines title 'time', \
-'' using ($10-0.06):($2+0.001):2 with labels title ' ', \
-'' using 4:xtic(1) with lines title 'error'  , \
-'' using ($10+0.3):($4+0.0015):4 with labels title ' '
+plot 'result_clock_gettime.csv' using 1:2 with points linewidth 2  title 'baseline', \
+'' using 1:3 with points title 'openmp_2', \
+'' using 1:4 with points linewidth 2 title 'openmp_4', \
+'' using 1:5 with points linewidth 2 title 'avx', \
+'' using 1:6 with points linewidth 2 title 'avxunroll', \
+'' using 1:7 with points linewidth 2 title 'montecarlo'
